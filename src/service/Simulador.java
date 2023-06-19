@@ -43,7 +43,7 @@ public class Simulador {
 
             for (int f = 0; f < tempoParaProximaChegada; f++){
 
-                if (servicoEmFila.size() != 0){
+                if (servicoEmFila.size() > 0 && quantidadeDeAtendentes == 0){
                     tempoEmEspera = tempoEmEspera + 1;
                 }
 
@@ -86,17 +86,6 @@ public class Simulador {
         resultados.setTempoAtendenteOcioso(tempoOcioso);
         resultados.setTempoMedioDeAtendimento(tempoMedioDeAtendimento);
 
-        System.out.println("chegou aqui:");
-        System.out.println("valoresTempoChegada ||| valoresTempoServico");
-        for (int i =0;i<valoresTempoServico.size();i++) {
-            System.out.println(i + "         " + valoresTempoChegada.get(i) + "                    " + valoresTempoServico.get(i));
-        }
-        System.out.println("quantidade de atendentes: "+quantidadeDeAtendentes);
-        System.out.println("tempoOcioso: "+tempoOcioso);
-        System.out.println("tempoEmEspera: "+tempoEmEspera);
-        System.out.println("tempoTotalDeAtendimento: "+tempoTotalDeAtendimento);
-        System.out.println("tempoMedioDeAtendimento: "+tempoMedioDeAtendimento);
-
         SwingUtilities.invokeLater(() -> {
             TelaResultados telaResultados = new TelaResultados(resultados);
             telaResultados.setVisible(true);
@@ -108,7 +97,7 @@ public class Simulador {
         List<Double> valores = new ArrayList<>();
         Random random = new Random();
 
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 200; i++) {
             valores.add(Double.parseDouble(String.valueOf(random.nextInt(9 + 1))));
         }
 
