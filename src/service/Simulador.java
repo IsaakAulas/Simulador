@@ -1,98 +1,115 @@
 package service;
 
 import domain.Resultados;
+import telas.TelaResultados;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 public class Simulador {
-    protected Resultados resultados;
 
-    public void simular(int quantidadeDeAtendentes){
-        List<Integer> valoresTempoServico = gerarVetorAleatorio();
-        List<Integer> valoresTempoChegada = gerarVetorAleatorio();
+    private Outliers outliers = new Outliers();
+    public void simular(Integer quantidadeDeAtendentes){
+        List<Double> valoresTempoServico = gerarVetorAleatorio();
+        List<Double> valoresTempoChegada = gerarVetorAleatorio();
         realizarSimulacao(quantidadeDeAtendentes, valoresTempoServico, valoresTempoChegada);
     }
 
-    public void simular(int quantidadeDeAtendentes, List<Integer> valoresTempoServico, List<Integer> valoresTempoChegada){
-        realizarSimulacao(quantidadeDeAtendentes, valoresTempoServico, valoresTempoChegada);
+    public void simular(Integer quantidadeDeAtendentes, ArrayList<Double> valoresTempoServico, ArrayList<Double> valoresTempoChegada){
+        ArrayList<Double>[] listasComOutliers = new ArrayList[]{valoresTempoServico, valoresTempoChegada};
+        ArrayList<Double>[] listasProntas = outliers.removerOutliers(listasComOutliers);
+        ArrayList<Double> valoresSemOutliersTS = listasProntas[0];
+        ArrayList<Double> valoresSemOutliersTC = listasProntas[1];
+        realizarSimulacao(quantidadeDeAtendentes, valoresSemOutliersTS, valoresSemOutliersTC);
     }
 
-    private void realizarSimulacao(int quantidadeDeAtendentes, List<Integer> valoresTempoServico, List<Integer> valoresTempoChegada){
+    private void realizarSimulacao(Integer quantidadeDeAtendentes, List<Double> valoresTempoServico, List<Double> valoresTempoChegada){
+        Resultados resultados = new Resultados();
+        int tempoOcioso = 0;
+        int tempoEmEspera = 0;
+        int tempoTotalDeAtendimento = 0;
+        double tempoMedioDeAtendimento;
+        double tempoParaProximaChegada;
+        double tempoDeAtendimentoDoServico;
+        ArrayList<Double> servicoEmFila = new ArrayList<>();
+        ArrayList<Double> atendentesEmTrabalho = new ArrayList<>();
+
+        for (int i = 0; i < valoresTempoChegada.size(); i++){
+            tempoParaProximaChegada = valoresTempoChegada.get(i);
+            tempoDeAtendimentoDoServico = valoresTempoServico.get(i);
+            tempoTotalDeAtendimento = (int) (tempoTotalDeAtendimento + tempoDeAtendimentoDoServico);
+
+            for (int f = 0; f < tempoParaProximaChegada; f++){
+
+                if (servicoEmFila.size() != 0){
+                    tempoEmEspera = tempoEmEspera + 1;
+                }
+
+                if (quantidadeDeAtendentes > 0){
+                    tempoOcioso = tempoOcioso + 1;
+                }
+
+                for (int x = 0; x < atendentesEmTrabalho.size(); x++){
+
+                    if (quantidadeDeAtendentes > 0 && servicoEmFila.size() > 0){
+                        atendentesEmTrabalho.add(servicoEmFila.get(0));
+                        servicoEmFila.remove(0);
+                    }
+
+                    if (atendentesEmTrabalho.get(x) > 0){
+                        double valor = atendentesEmTrabalho.get(x) - 1;
+                        atendentesEmTrabalho.set(x, valor);
+                    }
+
+                    if (atendentesEmTrabalho.get(x) == 0){
+                        atendentesEmTrabalho.remove(x);
+                        quantidadeDeAtendentes = quantidadeDeAtendentes + 1;
+                    }
+                }
+            }
+
+            if (quantidadeDeAtendentes == 0){
+                servicoEmFila.add(tempoDeAtendimentoDoServico);
+            }
+
+            if (quantidadeDeAtendentes > 0){
+                atendentesEmTrabalho.add(tempoDeAtendimentoDoServico);
+                quantidadeDeAtendentes = quantidadeDeAtendentes - 1;
+            }
+        }
+
+        tempoMedioDeAtendimento = (double) tempoTotalDeAtendimento / valoresTempoChegada.size();
+
+        resultados.setTempoAguardandoServico(tempoEmEspera);
+        resultados.setTempoAtendenteOcioso(tempoOcioso);
+        resultados.setTempoMedioDeAtendimento(tempoMedioDeAtendimento);
+
         System.out.println("chegou aqui:");
         System.out.println("valoresTempoChegada ||| valoresTempoServico");
         for (int i =0;i<valoresTempoServico.size();i++) {
-            System.out.println("           " + valoresTempoChegada.get(i) + "                    " + valoresTempoServico.get(i));
+            System.out.println(i + "         " + valoresTempoChegada.get(i) + "                    " + valoresTempoServico.get(i));
         }
         System.out.println("quantidade de atendentes: "+quantidadeDeAtendentes);
+        System.out.println("tempoOcioso: "+tempoOcioso);
+        System.out.println("tempoEmEspera: "+tempoEmEspera);
+        System.out.println("tempoTotalDeAtendimento: "+tempoTotalDeAtendimento);
+        System.out.println("tempoMedioDeAtendimento: "+tempoMedioDeAtendimento);
 
-        
-//        int tempoAguardandoServico = valoresTempoChegada.get(0);
-//        int tempoAtendenteOcioso = 0;
-//        List<Integer> atendentes = new ArrayList<>();
-//
-//        for (int i = 0; i < valoresTempoChegada.size(); i++) {
-//            int tempoProximaChegada;
-//            int tempoAtualChegada = valoresTempoChegada.get(i);
-//            int tempoRealizacaoDeServico = valoresTempoServico.get(i);
-//
-//            if (i == (valoresTempoChegada.size() - 2)){
-//                tempoProximaChegada = valoresTempoChegada.get(i);
-//            } else {
-//                tempoProximaChegada = -1;
-//            }
-//            Collections.sort(atendentes);
-//            // Verifica se há atendentes disponíveis
-//            if (atendentes.size() < quantidadeDeAtendentes) {
-//                // Adiciona o atendente e subtrai o tempo de serviço
-//                atendentes.add(tempoRealizacaoDeServico);
-//            } else {
-//                // Calcula o tempo de espera
-//                int menorTempoServico = atendentes.get(0);
-//
-//                for (int j = 0; j < atendentes.size(); j++) {
-//                    if (menorTempoServico < tempoProximaChegada) {
-//                        int tempo = atendentes.get(j) - tempoProximaChegada;
-//                        atendentes.set(j, tempo);
-//                    }
-//                }
-//                // Remove os atendentes que concluíram o serviço
-//                for (int x = 0; x < atendentes.size(); x++) {
-//                    if (atendentes.get(x) <= 0) {
-//                        atendentes.remove(x);
-//                        x--;
-//                    }
-//                }
-//
-//                int tempoEspera = tempoAtualChegada - menorTempoServico;
-//                if (tempoEspera > 0) {
-//                    tempoDeEspera += tempoEspera;
-//                }
-//
-//                // Subtrai o tempo de serviço de todos os atendentes
-//                for (int j = 0; j < atendentes.size(); j++) {
-//                    atendentes.set(j, atendentes.get(j) - tempoRealizacaoDeServico);
-//                }
-//            }
-//
-//            // Calcula o tempo ocioso
-//            int atendentesDisponiveis = quantidadeDeAtendentes - atendentes.size();
-//            if (atendentesDisponiveis > 0) {
-//                tempoOcioso += atendentesDisponiveis * tempoRealizacaoDeServico;
-//            }
-//        }
-//
-//        System.out.println("Tempo de Espera: " + tempoDeEspera);
-//        System.out.println("Tempo Ocioso: " + tempoOcioso);
+        SwingUtilities.invokeLater(() -> {
+            TelaResultados telaResultados = new TelaResultados(resultados);
+            telaResultados.setVisible(true);
+            telaResultados.setLocationRelativeTo(null);
+        });
     }
 
-    private List<Integer> gerarVetorAleatorio() {
-        List<Integer> valores = new ArrayList<>();
+    private List<Double> gerarVetorAleatorio() {
+        List<Double> valores = new ArrayList<>();
         Random random = new Random();
 
-        for (int i = 0; i < 200; i++) {
-            valores.add(random.nextInt(9 + 1));
+        for (int i = 0; i < 3; i++) {
+            valores.add(Double.parseDouble(String.valueOf(random.nextInt(9 + 1))));
         }
 
         return valores;

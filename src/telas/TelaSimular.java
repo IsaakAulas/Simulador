@@ -12,7 +12,7 @@ public class TelaSimular {
     int quantidadeDeAtendentes;
     protected void gerarTelaSimular(){
         JFrame realizarSimulação = new JFrame("Realizar Simulação");
-        realizarSimulação.setMinimumSize(new Dimension(1000, 100));
+        realizarSimulação.setMinimumSize(new Dimension(900, 80));
         realizarSimulação.setLocationRelativeTo(null);
         realizarSimulação.setLayout(new FlowLayout(FlowLayout.CENTER));
 

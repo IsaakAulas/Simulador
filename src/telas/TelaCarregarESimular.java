@@ -8,20 +8,19 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 public class TelaCarregarESimular extends Component {
 
     Simulador simulador = new Simulador();
-    List<Integer> valoresTempoServico = new ArrayList<>();
-    List<Integer> valoresTempoChegada = new ArrayList<>();
+    ArrayList<Double> valoresTempoServico = new ArrayList<>();
+    ArrayList<Double> valoresTempoChegada = new ArrayList<>();
     int quantidadeDeAtendentes;
 
     protected void carregarArquivosESimular() {
         JFrame carregarArquivos = new JFrame("Carregar Arquivos");
-        carregarArquivos.setMinimumSize(new Dimension(1000, 100));
+        carregarArquivos.setMinimumSize(new Dimension(900, 120));
         carregarArquivos.setLocationRelativeTo(null);
-        carregarArquivos.setLayout(new FlowLayout(FlowLayout.CENTER));
+        carregarArquivos.setLayout(new BorderLayout());
 
         JPanel painelBotoes = new JPanel();
         painelBotoes.setLayout(new FlowLayout(FlowLayout.CENTER));
@@ -29,30 +28,25 @@ public class TelaCarregarESimular extends Component {
         JLabel labelQuantidadeAtendentes = new JLabel("Quantidade de Atendentes:");
         JTextField textFieldQuantidadeAtendentes = new JTextField(10);
 
-        JButton botaoConfirmar = new JButton("Confirmar");
         JButton botaoSelecionarTempoChegada = new JButton("Selecionar Arquivo Tempo de Chegada");
         JButton botaoSelecionarTempoServico = new JButton("Selecionar Arquivo Tempo de Serviço");
-        JButton botaoConcluirSimulacao = new JButton("Concluir Simulação");
+        JButton botaoSimular = new JButton("Simular");
 
         painelBotoes.add(labelQuantidadeAtendentes);
         painelBotoes.add(textFieldQuantidadeAtendentes);
-        painelBotoes.add(botaoConfirmar);
         painelBotoes.add(botaoSelecionarTempoChegada);
         painelBotoes.add(botaoSelecionarTempoServico);
-        painelBotoes.add(botaoConcluirSimulacao);
 
-        carregarArquivos.add(painelBotoes, BorderLayout.SOUTH);
-
-        botaoConfirmar.addActionListener(e -> {
-            String quantidadeAtendentesText = textFieldQuantidadeAtendentes.getText();
-            quantidadeDeAtendentes = Integer.parseInt(quantidadeAtendentesText);
-        });
+        carregarArquivos.add(painelBotoes, BorderLayout.NORTH);
+        carregarArquivos.add(botaoSimular, BorderLayout.SOUTH);
 
         botaoSelecionarTempoChegada.addActionListener(e -> carregarArquivo("tempoChegada"));
 
         botaoSelecionarTempoServico.addActionListener(e -> carregarArquivo("tempoServico"));
 
-        botaoConcluirSimulacao.addActionListener(e -> {
+        botaoSimular.addActionListener(e -> {
+            String quantidadeAtendentesText = textFieldQuantidadeAtendentes.getText();
+            quantidadeDeAtendentes = Integer.parseInt(quantidadeAtendentesText);
             carregarArquivos.dispose();
             simulador.simular(quantidadeDeAtendentes, valoresTempoServico, valoresTempoChegada);
         });
@@ -76,7 +70,7 @@ public class TelaCarregarESimular extends Component {
                         isFirstLine = false;
                         continue;
                     }
-                    int valor = Integer.parseInt(line);
+                    double valor = Double.parseDouble(line);
                     if (vetorNome.equals("tempoServico")){
                         valoresTempoServico.add(valor);
                     } else if (vetorNome.equals("tempoChegada")) {

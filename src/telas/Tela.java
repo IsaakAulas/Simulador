@@ -14,7 +14,7 @@ public class Tela extends JFrame {
     public Tela() {
         setTitle("Service.Simulador");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setMinimumSize(new Dimension(1000, 100));
+        setMinimumSize(new Dimension(900, 80));
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
